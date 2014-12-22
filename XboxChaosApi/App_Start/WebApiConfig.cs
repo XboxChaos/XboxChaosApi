@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System.Net.Http.Headers;
+using System.Web.Http;
+using XboxChaosApi.Helpers;
 
 namespace XboxChaosApi
 {
@@ -16,6 +18,8 @@ namespace XboxChaosApi
 				routeTemplate: "api/{version}/{controller}/{id}",
 				defaults: new { version = "1", id = RouteParameter.Optional }
 			);
+
+			config.Formatters.Add(new BrowserJsonFormatter());
 		}
 	}
 }
