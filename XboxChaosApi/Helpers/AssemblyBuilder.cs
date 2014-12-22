@@ -1,11 +1,5 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Web;
 using Ionic.Zip;
 using Newtonsoft.Json;
 using XboxChaosApi.Models;
@@ -29,26 +23,23 @@ namespace XboxChaosApi.Helpers
 
 
 			string pullDirectory = GetBuild(asmWorkingDir, buildref, time);
-			bool packageCreationSucceeded = false;
 
-			if (pullDirectory != null)
+			if (pullDirectory == null)
+				return false;
+			try
 			{
-				bool dependentSuccess = CopyDependencies(asmWorkingDir, pullDirectory);
+				if (!CopyDependencies(asmWorkingDir, pullDirectory))
+					return false;
 
-				if (dependentSuccess)
-				{
-					bool compileSucceeded = CompileAssembly(msbuildDir, pullDirectory);
+				if (!CompileAssembly(msbuildDir, pullDirectory))
+					return false;
 
-					if (compileSucceeded)
-					{
-						packageCreationSucceeded = BuildAssemblyPackage(pullDirectory, time, buildref, asmWorkingDir);
-					}
-
-					DirectoryUtility.DeleteDirectory(pullDirectory,true);
-				}
+				return BuildAssemblyPackage(pullDirectory, time, buildref, asmWorkingDir);
 			}
-
-			return packageCreationSucceeded;
+			finally
+			{
+				DirectoryUtility.DeleteDirectory(pullDirectory, true);
+			}
 		}
 
 		private static bool BuildAssemblyPackage(string pullDirectory, DateTime time, string branch, string asmworkingdir)
@@ -98,15 +89,13 @@ namespace XboxChaosApi.Helpers
 			}
 			catch (Exception)
 			{
-				DirectoryUtility.DeleteDirectory(pullDirectory, true);
 				return false;
 			}
 		}
 
 		public static string GetBuild(string asmWorkingDir, string branch, DateTime time)
 		{
-			
-			var outputLocation = "\"" + branch + "_" + time.ToFileTime() + "\"";
+			var outputLocation = String.Format("\"{0}_{1}\"", branch, time.ToFileTime());
 			int returnCode = VariousFunctions.RunProgramSilently("C:\\Program Files (x86)\\Git\\cmd\\git.exe",
 				"clone -b " + branch + " https://github.com/XboxChaos/Assembly.git " + outputLocation, asmWorkingDir);
 
