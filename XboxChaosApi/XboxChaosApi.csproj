@@ -94,6 +94,7 @@
     </Compile>
     <Compile Include="Helpers\BrowserJsonFormatter.cs" />
     <Compile Include="Helpers\AssemblyBuilder.cs" />
+    <Compile Include="Helpers\DirectoryUtility.cs" />
     <Compile Include="Helpers\VariousFunctions.cs" />
     <Compile Include="Migrations\201412210711264_Added Basic Release model.cs" />
     <Compile Include="Migrations\201412210711264_Added Basic Release model.Designer.cs">

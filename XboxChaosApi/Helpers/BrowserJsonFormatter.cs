@@ -6,6 +6,8 @@ using System.Net.Http.Headers;
 
 namespace XboxChaosApi.Helpers
 {
+	//Credit to Glenn Slaven for this implementation of Json return type formatting
+	//http://stackoverflow.com/a/12487921
 	public class BrowserJsonFormatter : JsonMediaTypeFormatter
 	{
 		public BrowserJsonFormatter()

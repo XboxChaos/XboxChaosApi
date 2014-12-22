@@ -15,7 +15,7 @@ namespace XboxChaosApi.Helpers
 		/// <param name="path">The path to the program to execute.</param>
 		/// <param name="arguments">Command-line arguments to pass to the program.</param>
 		/// <param name="workingDirectory">The working directory to run in the program in.</param>
-		public static void RunProgramSilently(string path, string arguments, string workingDirectory)
+		public static int RunProgramSilently(string path, string arguments, string workingDirectory)
 		{
 			var info = new ProcessStartInfo(path, arguments)
 			{
@@ -29,6 +29,17 @@ namespace XboxChaosApi.Helpers
 			if (proc == null)
 				throw new InvalidOperationException();
 			proc.WaitForExit();
+			return proc.ExitCode;
+		}
+
+		//Thanks for saving me some thought, JaredPar :)
+		//http://stackoverflow.com/a/321404
+		public static byte[] StringToByteArray(string hex)
+		{
+			return Enumerable.Range(0, hex.Length)
+							 .Where(x => x % 2 == 0)
+							 .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+							 .ToArray();
 		}
 	}
 }
