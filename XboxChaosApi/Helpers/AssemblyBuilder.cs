@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Model;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Ionic.Zip;
 using Newtonsoft.Json;
+using XboxChaosApi.Database;
 using XboxChaosApi.Models;
 
 namespace XboxChaosApi.Helpers
@@ -53,28 +55,34 @@ namespace XboxChaosApi.Helpers
 				if (!BuildPackage(pullDirectory, time, buildref, asmWorkingDir, "AssemblyUpdateManager"))
 					return false;
 
-				using (var db = new DatabaseContext())
+				lock (typeof (AssemblyBuilder))
 				{
-					var result = db.Releases.Find(buildref.Equals("new_updater") ? 1 : 2);
-					if (result.UpdatedAt.ToFileTimeUtc() < time.ToFileTimeUtc())
+					using (var db = new DatabaseContext())
 					{
-
-						var rel = new Release()
+						var result = db.Releases.Find(buildref.Equals("new_updater") ? 1 : 2);
+						if (result == null || result.UpdatedAt.ToFileTimeUtc() < time.ToFileTimeUtc())
 						{
-							Id = buildref.Equals("new_updater") ? 1 : 2,
-							BuildDownload = "placeholder b/c reasons",
-							Name = time.ToString("yyyy.MM.dd.HH.mm.ss"),
-							UpdatedAt = time,
-							ReleaseMode = buildref.Equals("new_updater") ? ReleaseMode.Experimental : ReleaseMode.Stable
-						};
+							var rel = new Release()
+							{
+								Branch = buildref.Equals("new_updater") ? 1 : 2,
+								BuildDownload = String.Format("http://tj.ngrok.com/asmbuilds/{0}/Assembly/{1}.zip", buildref, time.ToFileTime()),
+								UpdaterDownload =
+									String.Format("http://tj.ngrok.com/asmbuilds/{0}/AssemblyUpdateManager/{1}.zip", buildref, time.ToFileTime()),
+								Name = time.ToString("yyyy.MM.dd.HH.mm.ss"),
+								UpdatedAt = time,
+								ReleaseMode = buildref.Equals("new_updater") ? ReleaseMode.Experimental : ReleaseMode.Stable,
+								FriendlyVersion = time.ToString("yyyy.MM.dd.HH.mm.ss"),
+								InternalVersion = GetInternalVersion(pullDirectory)
+							};
 
-						db.Releases.AddOrUpdate(rel);
-						db.SaveChanges();
-					}
-					else
-					{
-						File.Delete(Path.Combine(asmWorkingDir, buildref, "Assembly", time.ToFileTime() + ".zip"));
-						File.Delete(Path.Combine(asmWorkingDir, buildref, "AssemblyUpdateManager", time.ToFileTime() + ".zip"));
+							db.Releases.AddOrUpdate(rel);
+							db.SaveChanges();
+						}
+						else
+						{
+							File.Delete(Path.Combine(asmWorkingDir, buildref, "Assembly", time.ToFileTime() + ".zip"));
+							File.Delete(Path.Combine(asmWorkingDir, buildref, "AssemblyUpdateManager", time.ToFileTime() + ".zip"));
+						}
 					}
 				}
 				return true;
@@ -98,6 +106,14 @@ namespace XboxChaosApi.Helpers
 				foreach (var file in myFiles.Skip(5))
 					file.Delete();
 			}
+		}
+
+		private static string GetInternalVersion(string pullDirectory)
+		{
+			var releaseDir = Path.Combine(pullDirectory, "src", "Assembly", "bin", "x86", "Release", "Assembly.exe");
+
+			var versionInfo = FileVersionInfo.GetVersionInfo(releaseDir);
+			return versionInfo.ProductVersion;
 		}
 
 		private static bool CleanupLocalizations(string pullDirectory)
@@ -135,9 +151,9 @@ namespace XboxChaosApi.Helpers
 
 		private static bool AddVersionInfo(string pullDirectory, DateTime time)
 		{
-			var updateString = new Update()
+			var updateString = new VersionInfo()
 			{
-				Version = time.ToString("yyyy.MM.dd.HH.mm.ss")
+				DisplayVersion = time.ToString("yyyy.MM.dd.HH.mm.ss")
 			};
 			var releaseDir = Path.Combine(pullDirectory, "src", "Assembly", "bin", "x86", "Release");
 
@@ -181,7 +197,7 @@ namespace XboxChaosApi.Helpers
 			if (returnCode != 0)
 				return null;
 
-			return asmWorkingDir + branch + "_" + time.ToFileTime();
+			return Path.Combine(asmWorkingDir, branch + "_" + time.ToFileTime());
 		}
 
 		private const string AsmDirVar = "ASM_DIR";

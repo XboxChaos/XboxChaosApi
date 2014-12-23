@@ -1,8 +1,9 @@
 namespace XboxChaosApi.Migrations
 {
+    using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddedBasicReleasemodel : DbMigration
+    public partial class InitialCreate : DbMigration
     {
         public override void Up()
         {
@@ -10,13 +11,15 @@ namespace XboxChaosApi.Migrations
                 "dbo.Releases",
                 c => new
                     {
-                        Id = c.Int(nullable: false, identity: true),
+                        Branch = c.Int(nullable: false),
                         Name = c.String(nullable: false),
                         ReleaseMode = c.Int(nullable: false),
+                        BuildDownload = c.String(nullable: false),
+                        UpdaterDownload = c.String(nullable: false),
                         CreatedAt = c.DateTime(nullable: false),
                         UpdatedAt = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.Id);
+                .PrimaryKey(t => t.Branch);
             
         }
         

@@ -7,13 +7,13 @@ namespace XboxChaosApi.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.1-30610")]
-    public sealed partial class AddedBuildDownloadstring : IMigrationMetadata
+    public sealed partial class RemovedCreatedAt : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedBuildDownloadstring));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(RemovedCreatedAt));
         
         string IMigrationMetadata.Id
         {
-            get { return "201412210717379_Added Build Download string"; }
+            get { return "201412230634334_Removed CreatedAt"; }
         }
         
         string IMigrationMetadata.Source

@@ -89,6 +89,8 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\GitController.cs" />
+    <Compile Include="Controllers\UpdateCheckController.cs" />
+    <Compile Include="Database\DatabaseContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -97,21 +99,24 @@
     <Compile Include="Helpers\DirectoryUtility.cs" />
     <Compile Include="Helpers\GithubHashUtility.cs" />
     <Compile Include="Helpers\VariousFunctions.cs" />
-    <Compile Include="Migrations\201412210711264_Added Basic Release model.cs" />
-    <Compile Include="Migrations\201412210711264_Added Basic Release model.Designer.cs">
-      <DependentUpon>201412210711264_Added Basic Release model.cs</DependentUpon>
+    <Compile Include="Migrations\201412230609201_InitialCreate.cs" />
+    <Compile Include="Migrations\201412230609201_InitialCreate.Designer.cs">
+      <DependentUpon>201412230609201_InitialCreate.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201412210717379_Added Build Download string.cs" />
-    <Compile Include="Migrations\201412210717379_Added Build Download string.Designer.cs">
-      <DependentUpon>201412210717379_Added Build Download string.cs</DependentUpon>
+    <Compile Include="Migrations\201412230634334_Removed CreatedAt.cs" />
+    <Compile Include="Migrations\201412230634334_Removed CreatedAt.Designer.cs">
+      <DependentUpon>201412230634334_Removed CreatedAt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201412230645326_Version Numbers Added.cs" />
+    <Compile Include="Migrations\201412230645326_Version Numbers Added.Designer.cs">
+      <DependentUpon>201412230645326_Version Numbers Added.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Audit.cs" />
-    <Compile Include="Models\DatabaseContext.cs" />
+    <Compile Include="Models\AvailableUpdate.cs" />
     <Compile Include="Models\Error.cs" />
     <Compile Include="Models\GithubPush.cs" />
     <Compile Include="Models\Release.cs" />
-    <Compile Include="Models\Update.cs" />
+    <Compile Include="Models\VersionInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -128,11 +133,14 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201412210711264_Added Basic Release model.resx">
-      <DependentUpon>201412210711264_Added Basic Release model.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201412230609201_InitialCreate.resx">
+      <DependentUpon>201412230609201_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201412210717379_Added Build Download string.resx">
-      <DependentUpon>201412210717379_Added Build Download string.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201412230634334_Removed CreatedAt.resx">
+      <DependentUpon>201412230634334_Removed CreatedAt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412230645326_Version Numbers Added.resx">
+      <DependentUpon>201412230645326_Version Numbers Added.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

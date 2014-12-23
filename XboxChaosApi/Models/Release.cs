@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace XboxChaosApi.Models
 {
-	public class Release : Audit
+	public class Release
 	{
 		[Key]
-		public int Id { get; set; }
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		public int Branch { get; set; }
 
 		[Required]
 		public string Name { get; set; }
@@ -15,6 +18,18 @@ namespace XboxChaosApi.Models
 
 		[Required]
 		public string BuildDownload { get; set; }
+
+		[Required]
+		public string UpdaterDownload { get; set; }
+
+		[Required]
+		public DateTime UpdatedAt { get; set; }
+
+		[Required]
+		public string FriendlyVersion { get; set; }
+
+		[Required]
+		public string InternalVersion { get; set; }
 	}
 
 	public enum ReleaseMode

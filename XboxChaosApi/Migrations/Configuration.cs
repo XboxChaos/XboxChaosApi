@@ -1,17 +1,19 @@
-using XboxChaosApi.Models;
-
 namespace XboxChaosApi.Migrations
 {
+    using System;
+    using System.Data.Entity;
     using System.Data.Entity.Migrations;
+    using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<XboxChaosApi.Models.DatabaseContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<XboxChaosApi.Database.DatabaseContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
+            ContextKey = "XboxChaosApi.Database.DatabaseContext";
         }
 
-        protected override void Seed(DatabaseContext context)
+        protected override void Seed(XboxChaosApi.Database.DatabaseContext context)
         {
             //  This method will be called after migrating to the latest version.
 

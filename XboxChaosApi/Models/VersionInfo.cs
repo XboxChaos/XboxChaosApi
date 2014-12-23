@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace XboxChaosApi.Models
 {
-	public class Update
+	public class VersionInfo
 	{
 		[JsonProperty(PropertyName = "display_version")]
-		public String Version { get; set; }
+		public String DisplayVersion { get; set; }
 	}
 }

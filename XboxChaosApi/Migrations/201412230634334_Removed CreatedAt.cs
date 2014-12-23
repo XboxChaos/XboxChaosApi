@@ -3,16 +3,16 @@ namespace XboxChaosApi.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddedBuildDownloadstring : DbMigration
+    public partial class RemovedCreatedAt : DbMigration
     {
         public override void Up()
         {
-            AddColumn("dbo.Releases", "BuildDownload", c => c.String(nullable: false));
+            DropColumn("dbo.Releases", "CreatedAt");
         }
         
         public override void Down()
         {
-            DropColumn("dbo.Releases", "BuildDownload");
+            AddColumn("dbo.Releases", "CreatedAt", c => c.DateTime(nullable: false));
         }
     }
 }
