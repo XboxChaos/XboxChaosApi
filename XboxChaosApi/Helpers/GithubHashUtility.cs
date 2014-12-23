@@ -6,7 +6,7 @@ namespace XboxChaosApi.Helpers
 {
 	public static class GithubHashUtility
 	{
-		public static bool hashIsValid(string githubsecretkey, string inboundString, string githubPassedStr)
+		public static bool HashIsValid(string githubsecretkey, string inboundString, string githubPassedStr)
 		{
 			githubPassedStr = githubPassedStr.Remove(0, 5);
 
