@@ -45,7 +45,7 @@ namespace XboxChaosApi.Controllers
 
 	        var hashIsValid = GithubHashUtility.hashIsValid(githubsecretkey, inboundString, githubPassedStr);
 
-			if (hashIsValid)
+			if (!hashIsValid)
 			{
 				var error = new Error()
 				{

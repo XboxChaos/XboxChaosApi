@@ -8,7 +8,7 @@ namespace XboxChaosApi.Models
 {
 	public class Update
 	{
-		[JsonProperty(PropertyName = "version")]
+		[JsonProperty(PropertyName = "display_version")]
 		public String Version { get; set; }
 	}
 }
