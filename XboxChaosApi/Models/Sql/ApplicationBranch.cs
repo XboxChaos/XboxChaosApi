@@ -37,5 +37,9 @@ namespace XboxChaosApi.Models.Sql
 		public string BuildDownload { get; set; }
 
 		public string UpdaterDownload { get; set; }
+
+		public string FriendlyVersion { get; set; }
+
+		public string InternalVersion { get; set; }
 	}
 }

@@ -34,7 +34,7 @@ namespace XboxChaosApi.Helpers
 				if (!CopyDependencies(asmWorkingDir, pullDirectory) || 
 					!CompileProgram(msbuildDir, pullDirectory, "Assembly") ||
 					!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager") ||
-					!AddVersionInfo(pullDirectory, time) ||
+					!AddVersionInfo(pullDirectory, time, branch) ||
 					!CleanupLocalizations(pullDirectory) ||
 					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", false) ||
 					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", true))
@@ -60,7 +60,9 @@ namespace XboxChaosApi.Helpers
 									BuildDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
 										string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc()),
 									UpdaterDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
-										string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc())
+										string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc()),
+									FriendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch),
+									InternalVersion = GetInternalVersion(pullDirectory)
 								}
 							);
 							db.SaveChanges();
@@ -136,11 +138,11 @@ namespace XboxChaosApi.Helpers
 			}
 		}
 
-		private static bool AddVersionInfo(string pullDirectory, DateTime time)
+		private static bool AddVersionInfo(string pullDirectory, DateTime time, string branch)
 		{
 			var updateString = new VersionInfo
 			{
-				DisplayVersion = time.ToString("yyyy.MM.dd.HH.mm.ss")
+				DisplayVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch)
 			};
 			var releaseDir = Path.Combine(pullDirectory, "src", "Assembly", "bin", "x86", "Release");
 			var updateFileContents = JsonConvert.SerializeObject(updateString);

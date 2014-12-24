@@ -40,5 +40,11 @@ namespace XboxChaosApi.Models.Api
 
 		[DataMember(Name = "updater_link")]
 		public string UpdaterDownload { get; set; }
+
+		[DataMember(Name = "friendly_version")]
+		public string FriendlyVersion { get; set; }
+
+		[DataMember(Name = "internal_version")]
+		public string InternalVersion { get; set; }
 	}
 }

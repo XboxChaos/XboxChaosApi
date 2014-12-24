@@ -36,7 +36,9 @@ namespace XboxChaosApi.Migrations
 					RepoTree = "Assembly/tree/master",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
 					BuildDownload = null,
-					UpdaterDownload = null
+					UpdaterDownload = null,
+					FriendlyVersion = null,
+					InternalVersion = null
 				},
 				new ApplicationBranch
 				{
@@ -46,6 +48,8 @@ namespace XboxChaosApi.Migrations
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
 					BuildDownload = null,
 					UpdaterDownload = null,
+					FriendlyVersion = null,
+					InternalVersion = null
 				},
 				new ApplicationBranch
 				{
@@ -54,7 +58,9 @@ namespace XboxChaosApi.Migrations
 					RepoTree = "Assembly/tree/new_updater",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
 					BuildDownload = null,
-					UpdaterDownload = null
+					UpdaterDownload = null,
+					FriendlyVersion = null,
+					InternalVersion = null
 				}
 			);
 			context.SaveChanges();

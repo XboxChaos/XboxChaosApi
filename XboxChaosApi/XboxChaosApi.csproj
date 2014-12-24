@@ -95,6 +95,10 @@
     <Compile Include="Migrations\201412241646494_created db.Designer.cs">
       <DependentUpon>201412241646494_created db.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201412242131236_added build names.cs" />
+    <Compile Include="Migrations\201412242131236_added build names.Designer.cs">
+      <DependentUpon>201412242131236_added build names.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApplicationResponse.cs" />
     <Compile Include="Models\Api\GitResponse.cs" />
@@ -133,6 +137,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201412241646494_created db.resx">
       <DependentUpon>201412241646494_created db.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412242131236_added build names.resx">
+      <DependentUpon>201412242131236_added build names.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
