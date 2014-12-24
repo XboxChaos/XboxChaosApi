@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Http;
-using Newtonsoft.Json;
 using XboxChaosApi.Helpers;
-using XboxChaosApi.Models;
 using System.Threading;
 using System.Threading.Tasks;
 using XboxChaosApi.Models.Github;
+using XboxChaosApi.Models.Api;
 using XboxChaosApi.Extenders;
 using System.Net;
+using XboxChaosApi.Models.Sql;
 
 namespace XboxChaosApi.Controllers
 {
@@ -17,8 +17,8 @@ namespace XboxChaosApi.Controllers
 		private const string GithubSignatureHeader = "X-Hub-Signature";
 		private const string GithubSecret = "GITHUB_XBC_SEC";
 
-		// POST: api/1/Git
-		public async Task<IHttpActionResult> Post([FromBody]GithubPush payload)
+		// POST: api/1/Git/{id}
+		public async Task<IHttpActionResult> Post([FromBody]GithubPush payload, string id)
 		{
 			var githubSecretKey = Environment.GetEnvironmentVariable(GithubSecret);
 			var rawPayload = await Request.Content.ReadAsStringAsync();
@@ -37,13 +37,33 @@ namespace XboxChaosApi.Controllers
 				});
 			}
 
-			var preBuildTimestamp = DateTime.UtcNow;
-
-			if (!payload.Ref.Equals("refs/heads/new_updater") &&
-				!payload.Ref.Equals("refs/heads/master") &&
-				!payload.Ref.Equals("refs/heads/dev"))
+			var dbContainsBranch = false;
+			var dbContainsApp = false;
+			using (var db = new DatabaseContext())
 			{
-				return Content(HttpStatusCode.Unauthorized, new Response<Result>
+				var application = db.Applications.FirstOrDefault(a => a.RepoName.ToLowerInvariant().Equals(payload.Repository.Name.ToLowerInvariant()));
+				if (application != null)
+				{
+					dbContainsApp = true;
+					foreach (var branch in application.ApplicationBranches)
+						if (branch.Ref.Equals(payload.Ref))
+							dbContainsBranch = true;
+				}
+			}
+
+			if (!dbContainsApp)
+				return Content(HttpStatusCode.BadRequest, new Response<Result>
+				{
+					Result = null,
+					Error = new Error
+					{
+						StatusCode = ErrorCode.UnsupportedApplication,
+						Description = ErrorCode.UnsupportedApplication.GetDescription()
+					}
+				});
+
+			if (!dbContainsBranch)
+				return Content(HttpStatusCode.BadRequest, new Response<Result>
 				{
 					Result = null,
 					Error = new Error
@@ -52,38 +72,18 @@ namespace XboxChaosApi.Controllers
 						Description = ErrorCode.UnsupportedBranch.GetDescription()
 					}
 				});
-			}
 
-			return Ok();
+			var preBuildTimestamp = DateTime.UtcNow;
+			new Thread(new ThreadStart(() => AssemblyBuilder.CreateAssembly(payload.Ref, preBuildTimestamp))).Start();
 
-			//var timestamp = DateTime.Now;
-
-
-
-			//if (!pushPayload.Ref.Equals("refs/heads/new_updater"))
-			//{
-			//	var error = new Error()
-			//	{
-			//		ErrorCode = 2,
-			//		ErrorMessage = "Branch not followed"
-			//	};
-			//	var response = Ok(error);
-			//	return response;
-			//}
-
-			//var thread = new Thread(new ThreadStart(delegate
-			//{
-			//	AssemblyBuilder.CreateAssembly(pushPayload.Ref, timestamp);
-			//}));
-			//thread.Start();
-
-
-			//var success = new Error()
-			//{
-			//	ErrorCode = 0,
-			//	ErrorMessage = "Callback Received"
-			//};
-			//return Ok(success);
+			return Content(HttpStatusCode.OK, new Response<Result>
+			{
+				Result = new GitResponse
+				{
+					Success = true
+				},
+				Error = null
+			});
 		}
 	}
 }

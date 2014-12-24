@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.ComponentModel;
 
-namespace XboxChaosApi.Models
+namespace XboxChaosApi.Models.Api
 {
 	public class Response<T>
 		where T : Result
@@ -29,7 +28,10 @@ namespace XboxChaosApi.Models
 		InsecurePush = 0x00,
 
 		[Description("unsupported_branch")]
-		UnsupportedBranch = 0x20
+		UnsupportedBranch = 0x15,
+
+		[Description("unsupported_application")]
+		UnsupportedApplication = 0x30
 	}
 
 	public abstract class Result { }

@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Data.Entity.Migrations;
-using System.Data.Entity.Migrations.Model;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Ionic.Zip;
 using Newtonsoft.Json;
-using XboxChaosApi.Database;
-using XboxChaosApi.Models;
+using XboxChaosApi.Models.Sql;
+using System.Data.Entity.Migrations;
+using XboxChaosApi.Models.Local;
 
 namespace XboxChaosApi.Helpers
 {
 	public static class AssemblyBuilder
 	{
-
-		public static bool CreateAssembly(string branch, DateTime time)
+		public static bool CreateAssembly(string @ref, DateTime time)
 		{
-
-			string buildref = branch.Remove(0, 11);
+			string branch = @ref.Remove(0, 11);
 
 			var asmWorkingDir = Environment.GetEnvironmentVariable(AsmDirVar);
 			var msbuildDir = Environment.GetEnvironmentVariable(AsmMSBuildVar);
@@ -26,62 +23,45 @@ namespace XboxChaosApi.Helpers
 			if (asmWorkingDir == null || msbuildDir == null || gitDir == null)
 				return false;
 
-			string pullDirectory = GetBuild(asmWorkingDir, buildref, time);
-
-
-
+			string pullDirectory = GetBuild(asmWorkingDir, branch, time);
 			if (pullDirectory == null)
 				return false;
 			try
 			{
-				if (!CopyDependencies(asmWorkingDir, pullDirectory))
+				if (!CopyDependencies(asmWorkingDir, pullDirectory) || 
+					!CompileProgram(msbuildDir, pullDirectory, "Assembly") ||
+					!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager") ||
+					!AddVersionInfo(pullDirectory, time) ||
+					!CleanupLocalizations(pullDirectory) ||
+					!BuildPackage(pullDirectory, time, branch, asmWorkingDir, "Assembly") ||
+					!BuildPackage(pullDirectory, time, branch, asmWorkingDir, "AssemblyUpdateManager"))
 					return false;
 
-				if (!CompileProgram(msbuildDir, pullDirectory, "Assembly"))
-					return false;
-
-				if (!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager"))
-					return false;
-
-				if (!AddVersionInfo(pullDirectory, time))
-					return false;
-
-				if (!CleanupLocalizations(pullDirectory))
-					return false;
-
-				if (!BuildPackage(pullDirectory, time, buildref, asmWorkingDir, "Assembly"))
-					return false;
-
-				if (!BuildPackage(pullDirectory, time, buildref, asmWorkingDir, "AssemblyUpdateManager"))
-					return false;
-
-				lock (typeof (AssemblyBuilder))
+				lock (typeof(AssemblyBuilder))
 				{
 					using (var db = new DatabaseContext())
 					{
-						var result = db.Releases.Find(buildref.Equals("new_updater") ? 1 : 2);
-						if (result == null || result.UpdatedAt.ToFileTimeUtc() < time.ToFileTimeUtc())
+						var applicationBranch = db.ApplicationBranches.FirstOrDefault(b => b.Ref == @ref && b.Application.RepoName == "Assembly");
+						if (applicationBranch == null || applicationBranch.UpdatedAt < time)
 						{
-							var rel = new Release()
-							{
-								Branch = buildref.Equals("new_updater") ? 1 : 2,
-								BuildDownload = String.Format("http://tj.ngrok.com/asmbuilds/{0}/Assembly/{1}.zip", buildref, time.ToFileTime()),
-								UpdaterDownload =
-									String.Format("http://tj.ngrok.com/asmbuilds/{0}/AssemblyUpdateManager/{1}.zip", buildref, time.ToFileTime()),
-								Name = time.ToString("yyyy.MM.dd.HH.mm.ss"),
-								UpdatedAt = time,
-								ReleaseMode = buildref.Equals("new_updater") ? ReleaseMode.Experimental : ReleaseMode.Stable,
-								FriendlyVersion = time.ToString("yyyy.MM.dd.HH.mm.ss"),
-								InternalVersion = GetInternalVersion(pullDirectory)
-							};
+							var application = applicationBranch.Application;
 
-							db.Releases.AddOrUpdate(rel);
+							db.ApplicationBranches.AddOrUpdate(
+								b => b.RepoTree,
+								new ApplicationBranch
+								{
+									Application = application,
+									Name = branch,
+									Ref = @ref,
+									RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch)
+								}
+							);
 							db.SaveChanges();
 						}
 						else
 						{
-							File.Delete(Path.Combine(asmWorkingDir, buildref, "Assembly", time.ToFileTime() + ".zip"));
-							File.Delete(Path.Combine(asmWorkingDir, buildref, "AssemblyUpdateManager", time.ToFileTime() + ".zip"));
+							File.Delete(Path.Combine(asmWorkingDir, branch, "Assembly", time.ToFileTime() + ".zip"));
+							File.Delete(Path.Combine(asmWorkingDir, branch, "AssemblyUpdateManager", time.ToFileTime() + ".zip"));
 						}
 					}
 				}
@@ -120,7 +100,7 @@ namespace XboxChaosApi.Helpers
 		{
 			var releaseDir = Path.Combine(pullDirectory, "src", "Assembly", "bin", "x86", "Release");
 
-			foreach(string local in Localizations)
+			foreach (string local in Localizations)
 			{
 				DirectoryUtility.DeleteDirectory(Path.Combine(releaseDir, local), true);
 			}
@@ -131,7 +111,6 @@ namespace XboxChaosApi.Helpers
 			string programName)
 		{
 			var releaseDir = Path.Combine(pullDirectory, "src", programName, "bin", "x86", "Release");
-
 			File.Delete(Path.Combine(releaseDir, programName + ".exe.config"));
 
 			try
@@ -151,20 +130,20 @@ namespace XboxChaosApi.Helpers
 
 		private static bool AddVersionInfo(string pullDirectory, DateTime time)
 		{
-			var updateString = new VersionInfo()
+			var updateString = new VersionInfo
 			{
 				DisplayVersion = time.ToString("yyyy.MM.dd.HH.mm.ss")
 			};
 			var releaseDir = Path.Combine(pullDirectory, "src", "Assembly", "bin", "x86", "Release");
-
 			var updateFileContents = JsonConvert.SerializeObject(updateString);
 			File.WriteAllText(Path.Combine(releaseDir, "version.json"), updateFileContents);
+
 			return true;
 		}
 
 		private static bool CompileProgram(string msbuildDir, string pullDirectory, string target)
 		{
-			var arguments = String.Format("/t:{0} /p:Configuration=Release Assembly.sln", target);
+			var arguments = string.Format("/t:{0} /p:Configuration=Release Assembly.sln", target);
 			int returnCode = VariousFunctions.RunProgramSilently(msbuildDir, arguments,
 				Path.Combine(pullDirectory, "src"));
 
@@ -190,7 +169,7 @@ namespace XboxChaosApi.Helpers
 
 		public static string GetBuild(string asmWorkingDir, string branch, DateTime time)
 		{
-			var outputLocation = String.Format("\"{0}_{1}\"", branch, time.ToFileTime());
+			var outputLocation = string.Format("\"{0}_{1}\"", branch, time.ToFileTime());
 			int returnCode = VariousFunctions.RunProgramSilently("C:\\Program Files (x86)\\Git\\cmd\\git.exe",
 				"clone -b " + branch + " https://github.com/XboxChaos/Assembly.git " + outputLocation, asmWorkingDir);
 
@@ -204,7 +183,7 @@ namespace XboxChaosApi.Helpers
 		private const string AsmMSBuildVar = "ASM_MS_BUILD";
 		private const string AsmGitVar = "ASM_GIT";
 
-		private static readonly string[] Localizations = 
+		private static readonly string[] Localizations =
 		{
 			"de",
 			"en",
