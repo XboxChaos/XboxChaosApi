@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
 namespace XboxChaosApi.Models.Api
 {
+	[DataContract]
 	public class GitResponse
 		: Result
 	{
-		[JsonProperty("success")]
+		[DataMember(Name = "success")]
 		public bool Success { get; set; }
 	}
 }

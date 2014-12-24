@@ -1,24 +1,29 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace XboxChaosApi.Models.Api
 {
+	[DataContract]
+	[KnownType(typeof(ApplicationResponse))]
+	[KnownType(typeof(GitResponse))]
+	[KnownType(typeof(Error))]
 	public class Response<T>
 		where T : Result
 	{
-		[JsonProperty("result")]
+		[DataMember(Name = "result")]
 		public T Result { get; set; }
 
-		[JsonProperty("error")]
+		[DataMember(Name = "error")]
 		public Error Error { get; set; }
 	}
 
+	[DataContract]
 	public class Error
 	{
-		[JsonProperty("status_code")]
+		[DataMember(Name = "status_code")]
 		public ErrorCode StatusCode { get; set; }
 
-		[JsonProperty("description")]
+		[DataMember(Name = "description")]
 		public string Description { get; set; }
 	}
 
@@ -37,5 +42,6 @@ namespace XboxChaosApi.Models.Api
 		UnknownApplication = 0x45
 	}
 
+	[DataContract]
 	public abstract class Result { }
 }
