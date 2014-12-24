@@ -34,21 +34,27 @@ namespace XboxChaosApi.Migrations
 					Name = "master",
 					Ref = "refs/heads/master",
 					RepoTree = "Assembly/tree/master",
-					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
+					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
+					BuildDownload = null,
+					UpdaterDownload = null
 				},
 				new ApplicationBranch
 				{
 					Name = "dev",
 					Ref = "refs/heads/dev",
 					RepoTree = "Assembly/tree/dev",
-					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
+					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
+					BuildDownload = null,
+					UpdaterDownload = null,
 				},
 				new ApplicationBranch
 				{
 					Name = "new_updater",
 					Ref = "refs/heads/new_updater",
 					RepoTree = "Assembly/tree/new_updater",
-					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
+					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
+					BuildDownload = null,
+					UpdaterDownload = null
 				}
 			);
 			context.SaveChanges();

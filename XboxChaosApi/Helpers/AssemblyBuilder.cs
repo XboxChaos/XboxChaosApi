@@ -16,12 +16,15 @@ namespace XboxChaosApi.Helpers
 		{
 			string branch = @ref.Remove(0, 11);
 
-			var asmWorkingDir = Environment.GetEnvironmentVariable(AsmDirVar);
+			var asmBaseDir = Environment.GetEnvironmentVariable(AsmDirVar);
 			var msbuildDir = Environment.GetEnvironmentVariable(AsmMSBuildVar);
 			var gitDir = Environment.GetEnvironmentVariable(AsmGitVar);
 
-			if (asmWorkingDir == null || msbuildDir == null || gitDir == null)
+			if (asmBaseDir == null || msbuildDir == null || gitDir == null)
 				return false;
+
+			var asmWorkingDir = Path.Combine(asmBaseDir, "asmbuilds");
+			var asmStorageDir = Path.Combine(asmBaseDir, "downloads");
 
 			string pullDirectory = GetBuild(asmWorkingDir, branch, time);
 			if (pullDirectory == null)
@@ -33,8 +36,8 @@ namespace XboxChaosApi.Helpers
 					!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager") ||
 					!AddVersionInfo(pullDirectory, time) ||
 					!CleanupLocalizations(pullDirectory) ||
-					!BuildPackage(pullDirectory, time, branch, asmWorkingDir, "Assembly") ||
-					!BuildPackage(pullDirectory, time, branch, asmWorkingDir, "AssemblyUpdateManager"))
+					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", false) ||
+					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", true))
 					return false;
 
 				lock (typeof(AssemblyBuilder))
@@ -42,7 +45,7 @@ namespace XboxChaosApi.Helpers
 					using (var db = new DatabaseContext())
 					{
 						var applicationBranch = db.ApplicationBranches.FirstOrDefault(b => b.Ref == @ref && b.Application.RepoName == "Assembly");
-						if (applicationBranch == null || applicationBranch.UpdatedAt < time)
+						if (applicationBranch != null && applicationBranch.UpdatedAt < time)
 						{
 							var application = applicationBranch.Application;
 
@@ -53,15 +56,19 @@ namespace XboxChaosApi.Helpers
 									Application = application,
 									Name = branch,
 									Ref = @ref,
-									RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch)
+									RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch),
+									BuildDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
+										string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc()),
+									UpdaterDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
+										string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc())
 								}
 							);
 							db.SaveChanges();
 						}
 						else
 						{
-							File.Delete(Path.Combine(asmWorkingDir, branch, "Assembly", time.ToFileTime() + ".zip"));
-							File.Delete(Path.Combine(asmWorkingDir, branch, "AssemblyUpdateManager", time.ToFileTime() + ".zip"));
+							File.Delete(Path.Combine(asmStorageDir, "Assembly", "tree", branch, "builds", time.ToFileTimeUtc() + ".zip"));
+							File.Delete(Path.Combine(asmStorageDir, "Assembly", "tree", branch, "updaters", time.ToFileTimeUtc() + ".zip"));
 						}
 					}
 				}
@@ -69,16 +76,16 @@ namespace XboxChaosApi.Helpers
 			}
 			finally
 			{
-				CleanupExtraZips(asmWorkingDir);
+				CleanupExtraZips(asmStorageDir);
 				DirectoryUtility.DeleteDirectory(pullDirectory, true);
 			}
 		}
 
-		private static void CleanupExtraZips(string asmWorkingDir)
+		private static void CleanupExtraZips(string asmStorageDir)
 		{
 			foreach (var dir in BuildDirectories)
 			{
-				var releaseDir = Path.Combine(asmWorkingDir, dir);
+				var releaseDir = Path.Combine(asmStorageDir, "Assembly\\tree", dir);
 
 				var directory = new DirectoryInfo(releaseDir);
 				var myFiles = directory.GetFiles().OrderByDescending(file => file.LastWriteTime);
@@ -107,18 +114,19 @@ namespace XboxChaosApi.Helpers
 			return true;
 		}
 
-		private static bool BuildPackage(string pullDirectory, DateTime time, string branch, string asmworkingdir,
-			string programName)
+		private static bool BuildPackage(string pullDirectory, DateTime time, string branch, string asmStorageDir,
+			string programName, bool isUpdater)
 		{
 			var releaseDir = Path.Combine(pullDirectory, "src", programName, "bin", "x86", "Release");
 			File.Delete(Path.Combine(releaseDir, programName + ".exe.config"));
+			var buildType = !isUpdater ? "builds" : "updaters";
 
 			try
 			{
 				using (ZipFile zip = new ZipFile())
 				{
 					zip.AddDirectory(releaseDir);
-					zip.Save(Path.Combine(asmworkingdir, branch, programName, time.ToFileTime() + ".zip"));
+					zip.Save(Path.Combine(asmStorageDir, programName, "tree", branch, buildType, time.ToFileTimeUtc() + ".zip"));
 				}
 				return true;
 			}
@@ -169,19 +177,20 @@ namespace XboxChaosApi.Helpers
 
 		public static string GetBuild(string asmWorkingDir, string branch, DateTime time)
 		{
-			var outputLocation = string.Format("\"{0}_{1}\"", branch, time.ToFileTime());
+			var outputLocation = string.Format("\"{0}_{1}\"", branch, time.ToFileTimeUtc());
 			int returnCode = VariousFunctions.RunProgramSilently("C:\\Program Files (x86)\\Git\\cmd\\git.exe",
 				"clone -b " + branch + " https://github.com/XboxChaos/Assembly.git " + outputLocation, asmWorkingDir);
 
 			if (returnCode != 0)
 				return null;
 
-			return Path.Combine(asmWorkingDir, branch + "_" + time.ToFileTime());
+			return Path.Combine(asmWorkingDir, branch + "_" + time.ToFileTimeUtc());
 		}
 
 		private const string AsmDirVar = "ASM_DIR";
 		private const string AsmMSBuildVar = "ASM_MS_BUILD";
 		private const string AsmGitVar = "ASM_GIT";
+		private const string AsmStorageVar = "ASM_STOR";
 
 		private static readonly string[] Localizations =
 		{
@@ -203,12 +212,13 @@ namespace XboxChaosApi.Helpers
 
 		private static readonly string[] BuildDirectories =
 		{
-			Path.Combine("master", "Assembly"),
-			Path.Combine("master", "AssemblyUpdateManager"),
-			Path.Combine("new_updater", "Assembly"),
-			Path.Combine("new_updater", "AssemblyUpdateManager"),
-			Path.Combine("dev", "Assembly"),
-			Path.Combine("dev", "AssemblyUpdateManager"),
+			Path.Combine("master", "builds"),
+			Path.Combine("master", "updaters"),
+			Path.Combine("new_updater", "builds"),
+			Path.Combine("new_updater", "updaters"),
+			Path.Combine("dev", "builds"),
+			Path.Combine("dev", "updaters"),
 		};
+
 	}
 }

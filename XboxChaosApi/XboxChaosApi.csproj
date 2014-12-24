@@ -91,9 +91,9 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\GitController.cs" />
-    <Compile Include="Migrations\201412232304593_Created Application and ApplicationBranch models. bro..cs" />
-    <Compile Include="Migrations\201412232304593_Created Application and ApplicationBranch models. bro..Designer.cs">
-      <DependentUpon>201412232304593_Created Application and ApplicationBranch models. bro..cs</DependentUpon>
+    <Compile Include="Migrations\201412241646494_created db.cs" />
+    <Compile Include="Migrations\201412241646494_created db.Designer.cs">
+      <DependentUpon>201412241646494_created db.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApplicationResponse.cs" />
@@ -131,8 +131,8 @@
     <Folder Include="Database\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201412232304593_Created Application and ApplicationBranch models. bro..resx">
-      <DependentUpon>201412232304593_Created Application and ApplicationBranch models. bro..cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201412241646494_created db.resx">
+      <DependentUpon>201412241646494_created db.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

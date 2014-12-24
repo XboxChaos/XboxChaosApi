@@ -41,5 +41,13 @@ namespace XboxChaosApi.Helpers
 							 .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
 							 .ToArray();
 		}
+
+		public static long WindowsDateTimeToUnix(DateTime time)
+		{
+			return (long) (time - UnixEpoch).TotalSeconds;
+		}
+
+		private static readonly DateTime UnixEpoch =
+			new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 	}
 }

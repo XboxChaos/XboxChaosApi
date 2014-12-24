@@ -34,5 +34,11 @@ namespace XboxChaosApi.Models.Api
 
 		[DataMember(Name = "repo_tree")]
 		public string RepoTree { get; set; }
+
+		[DataMember(Name = "build_link")]
+		public string BuildDownload { get; set; }
+
+		[DataMember(Name = "updater_link")]
+		public string UpdaterDownload { get; set; }
 	}
 }

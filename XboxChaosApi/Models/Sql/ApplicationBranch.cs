@@ -33,5 +33,9 @@ namespace XboxChaosApi.Models.Sql
 		/// Gets or Sets the application that owns this branch.
 		/// </summary>
 		public virtual Application Application { get; set; }
+
+		public string BuildDownload { get; set; }
+
+		public string UpdaterDownload { get; set; }
 	}
 }

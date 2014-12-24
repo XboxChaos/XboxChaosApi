@@ -39,7 +39,9 @@ namespace XboxChaosApi.Controllers
 						{
 							Name =  b.Name,
 							Ref = b.Ref,
-							RepoTree = b.RepoTree
+							RepoTree = b.RepoTree,
+							BuildDownload = b.BuildDownload,
+							UpdaterDownload = b.UpdaterDownload
 						})
 					},
 					Error = null
