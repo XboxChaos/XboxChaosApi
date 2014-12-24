@@ -9,6 +9,7 @@ using XboxChaosApi.Models.Api;
 using XboxChaosApi.Extenders;
 using System.Net;
 using XboxChaosApi.Models.Sql;
+using Newtonsoft.Json;
 
 namespace XboxChaosApi.Controllers
 {
@@ -18,10 +19,11 @@ namespace XboxChaosApi.Controllers
 		private const string GithubSecret = "GITHUB_XBC_SEC";
 
 		// POST: api/1/Git/{id}
-		public async Task<IHttpActionResult> Post([FromBody]GithubPush payload, string id)
+		public async Task<IHttpActionResult> Post(string id)
 		{
 			var githubSecretKey = Environment.GetEnvironmentVariable(GithubSecret);
 			var rawPayload = await Request.Content.ReadAsStringAsync();
+			var payload = JsonConvert.DeserializeObject<GithubPush>(rawPayload);
 
 			if (!Request.Headers.Contains(GithubSignatureHeader) || githubSecretKey == null || rawPayload == null ||
 				!GithubHashUtility.HashIsValid(githubSecretKey, rawPayload, Request.Headers.GetValues(GithubSignatureHeader).First()))
