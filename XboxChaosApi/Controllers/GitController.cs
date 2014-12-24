@@ -43,7 +43,7 @@ namespace XboxChaosApi.Controllers
 			var dbContainsApp = false;
 			using (var db = new DatabaseContext())
 			{
-				var application = db.Applications.FirstOrDefault(a => a.RepoName.ToLowerInvariant().Equals(payload.Repository.Name.ToLowerInvariant()));
+				var application = db.Applications.FirstOrDefault(a => a.RepoName.Equals(payload.Repository.Name));
 				if (application != null)
 				{
 					dbContainsApp = true;

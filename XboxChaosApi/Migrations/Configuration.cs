@@ -32,21 +32,21 @@ namespace XboxChaosApi.Migrations
 				new ApplicationBranch
 				{
 					Name = "master",
-					Ref = "refs/head/master",
+					Ref = "refs/heads/master",
 					RepoTree = "Assembly/tree/master",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
 				},
 				new ApplicationBranch
 				{
 					Name = "dev",
-					Ref = "refs/head/dev",
+					Ref = "refs/heads/dev",
 					RepoTree = "Assembly/tree/dev",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
 				},
 				new ApplicationBranch
 				{
 					Name = "new_updater",
-					Ref = "refs/head/new_updater",
+					Ref = "refs/heads/new_updater",
 					RepoTree = "Assembly/tree/new_updater",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
 				}
