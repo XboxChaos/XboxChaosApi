@@ -24,6 +24,7 @@ namespace XboxChaosApi.Migrations
 					Description = "Multi-Generation Blam Engine Research Tool"
 				}
 			);
+			context.SaveChanges();
 
 			// Seed branches
 			context.ApplicationBranches.AddOrUpdate(
@@ -50,6 +51,7 @@ namespace XboxChaosApi.Migrations
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly")
 				}
 			);
+			context.SaveChanges();
 		}
 	}
 }

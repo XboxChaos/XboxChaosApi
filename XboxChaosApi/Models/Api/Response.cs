@@ -9,7 +9,7 @@ namespace XboxChaosApi.Models.Api
 		[JsonProperty("result")]
 		public T Result { get; set; }
 
-		[JsonProperty("result")]
+		[JsonProperty("error")]
 		public Error Error { get; set; }
 	}
 
@@ -31,7 +31,10 @@ namespace XboxChaosApi.Models.Api
 		UnsupportedBranch = 0x15,
 
 		[Description("unsupported_application")]
-		UnsupportedApplication = 0x30
+		UnsupportedApplication = 0x30,
+
+		[Description("unknown_application")]
+		UnknownApplication = 0x45
 	}
 
 	public abstract class Result { }

@@ -96,6 +96,7 @@
       <DependentUpon>201412232304593_Created Application and ApplicationBranch models. bro..cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Api\ApplicationResponse.cs" />
     <Compile Include="Models\Api\GitResponse.cs" />
     <Compile Include="Models\Local\VersionInfo.cs" />
     <Compile Include="Models\Sql\ApplicationBranch.cs" />
