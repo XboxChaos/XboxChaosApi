@@ -99,6 +99,10 @@
     <Compile Include="Migrations\201412242131236_added build names.Designer.cs">
       <DependentUpon>201412242131236_added build names.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201412262113473_added changelogs.cs" />
+    <Compile Include="Migrations\201412262113473_added changelogs.Designer.cs">
+      <DependentUpon>201412262113473_added changelogs.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\ApplicationResponse.cs" />
     <Compile Include="Models\Api\GitResponse.cs" />
@@ -140,6 +144,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412242131236_added build names.resx">
       <DependentUpon>201412242131236_added build names.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201412262113473_added changelogs.resx">
+      <DependentUpon>201412262113473_added changelogs.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

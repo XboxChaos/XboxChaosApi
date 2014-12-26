@@ -46,5 +46,8 @@ namespace XboxChaosApi.Models.Api
 
 		[DataMember(Name = "internal_version")]
 		public string InternalVersion { get; set; }
+
+		[DataMember(Name = "changelog")]
+		public string Changelog { get; set; }
 	}
 }

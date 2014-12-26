@@ -38,7 +38,8 @@ namespace XboxChaosApi.Migrations
 					BuildDownload = null,
 					UpdaterDownload = null,
 					FriendlyVersion = null,
-					InternalVersion = null
+					InternalVersion = null,
+					Changelog = null
 				},
 				new ApplicationBranch
 				{
@@ -49,7 +50,8 @@ namespace XboxChaosApi.Migrations
 					BuildDownload = null,
 					UpdaterDownload = null,
 					FriendlyVersion = null,
-					InternalVersion = null
+					InternalVersion = null,
+					Changelog = null
 				},
 				new ApplicationBranch
 				{
@@ -60,7 +62,8 @@ namespace XboxChaosApi.Migrations
 					BuildDownload = null,
 					UpdaterDownload = null,
 					FriendlyVersion = null,
-					InternalVersion = null
+					InternalVersion = null,
+					Changelog = null
 				}
 			);
 			context.SaveChanges();

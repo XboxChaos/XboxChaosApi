@@ -41,5 +41,7 @@ namespace XboxChaosApi.Models.Sql
 		public string FriendlyVersion { get; set; }
 
 		public string InternalVersion { get; set; }
+
+		public string Changelog { get; set; }
 	}
 }

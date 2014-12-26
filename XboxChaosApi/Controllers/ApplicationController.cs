@@ -43,7 +43,8 @@ namespace XboxChaosApi.Controllers
 							BuildDownload = b.BuildDownload,
 							UpdaterDownload = b.UpdaterDownload,
 							FriendlyVersion = b.FriendlyVersion,
-							InternalVersion = b.InternalVersion
+							InternalVersion = b.InternalVersion,
+							Changelog = b.Changelog
 						})
 					},
 					Error = null

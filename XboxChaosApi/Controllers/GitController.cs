@@ -76,7 +76,7 @@ namespace XboxChaosApi.Controllers
 				});
 
 			var preBuildTimestamp = DateTime.UtcNow;
-			new Thread(new ThreadStart(() => AssemblyBuilder.CreateAssembly(payload.Ref, preBuildTimestamp))).Start();
+			new Thread(new ThreadStart(() => AssemblyBuilder.CreateAssembly(payload, preBuildTimestamp))).Start();
 
 			return Content(HttpStatusCode.OK, new Response<Result>
 			{

@@ -6,27 +6,29 @@ using Ionic.Zip;
 using Newtonsoft.Json;
 using XboxChaosApi.Models.Sql;
 using System.Data.Entity.Migrations;
+using XboxChaosApi.Models.Github;
 using XboxChaosApi.Models.Local;
 
 namespace XboxChaosApi.Helpers
 {
 	public static class AssemblyBuilder
 	{
-		public static bool CreateAssembly(string @ref, DateTime time)
+		public static bool CreateAssembly(GithubPush payload, DateTime time)
 		{
-			string branch = @ref.Remove(0, 11);
+			var buildref = payload.Ref;
+			string branch = buildref.Remove(0, 11);
 
 			var asmBaseDir = Environment.GetEnvironmentVariable(AsmDirVar);
 			var msbuildDir = Environment.GetEnvironmentVariable(AsmMSBuildVar);
-			var gitDir = Environment.GetEnvironmentVariable(AsmGitVar);
+			var gitPath = Environment.GetEnvironmentVariable(AsmGitVar);
 
-			if (asmBaseDir == null || msbuildDir == null || gitDir == null)
+			if (asmBaseDir == null || msbuildDir == null || gitPath == null)
 				return false;
 
 			var asmWorkingDir = Path.Combine(asmBaseDir, "asmbuilds");
 			var asmStorageDir = Path.Combine(asmBaseDir, "downloads");
 
-			string pullDirectory = GetBuild(asmWorkingDir, branch, time);
+			string pullDirectory = GetBuild(asmWorkingDir, branch, time, gitPath);
 			if (pullDirectory == null)
 				return false;
 			try
@@ -40,11 +42,15 @@ namespace XboxChaosApi.Helpers
 					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", true))
 					return false;
 
+				var changelog = ParseChangelog(pullDirectory, payload.Compare, gitPath);
+				if (changelog == null)
+					return false;
+
 				lock (typeof(AssemblyBuilder))
 				{
 					using (var db = new DatabaseContext())
 					{
-						var applicationBranch = db.ApplicationBranches.FirstOrDefault(b => b.Ref == @ref && b.Application.RepoName == "Assembly");
+						var applicationBranch = db.ApplicationBranches.FirstOrDefault(b => b.Ref == buildref && b.Application.RepoName == "Assembly");
 						if (applicationBranch != null && applicationBranch.UpdatedAt < time)
 						{
 							var application = applicationBranch.Application;
@@ -55,14 +61,15 @@ namespace XboxChaosApi.Helpers
 								{
 									Application = application,
 									Name = branch,
-									Ref = @ref,
+									Ref = buildref,
 									RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch),
 									BuildDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
 										string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc()),
 									UpdaterDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
 										string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc()),
 									FriendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch),
-									InternalVersion = GetInternalVersion(pullDirectory)
+									InternalVersion = GetInternalVersion(pullDirectory),
+									Changelog = changelog
 								}
 							);
 							db.SaveChanges();
@@ -81,6 +88,32 @@ namespace XboxChaosApi.Helpers
 				CleanupExtraZips(asmStorageDir);
 				DirectoryUtility.DeleteDirectory(pullDirectory, true);
 			}
+		}
+
+		private static string ParseChangelog(string pullDirectory, string compare, string gitPath)
+		{
+			var lastSlash = compare.LastIndexOf("/");
+			var comparenums = compare.Substring(lastSlash + 1);
+
+			string output;
+			var status = VariousFunctions.RunProgramSilently(gitPath,
+				String.Format("log --abbrev-commit --oneline --no-merges {0}", comparenums), pullDirectory, out output);
+
+			if (status != 0)
+				return null;
+
+			var delimiters = new char[] {'\n'};
+			var lines = output.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+
+			string result = "";
+			foreach (var line in lines)
+			{
+				var choppedString = line.Substring(8);
+				var thisLine = String.Format("- {0}\n", choppedString);
+				result = result + thisLine;
+			}
+			Debug.WriteLine(result);
+			return result;
 		}
 
 		private static void CleanupExtraZips(string asmStorageDir)
@@ -154,8 +187,9 @@ namespace XboxChaosApi.Helpers
 		private static bool CompileProgram(string msbuildDir, string pullDirectory, string target)
 		{
 			var arguments = string.Format("/t:{0} /p:Configuration=Release Assembly.sln", target);
+			string output;
 			int returnCode = VariousFunctions.RunProgramSilently(msbuildDir, arguments,
-				Path.Combine(pullDirectory, "src"));
+				Path.Combine(pullDirectory, "src"), out output);
 
 			if (returnCode != 0)
 				return false;
@@ -177,11 +211,12 @@ namespace XboxChaosApi.Helpers
 			}
 		}
 
-		public static string GetBuild(string asmWorkingDir, string branch, DateTime time)
+		public static string GetBuild(string asmWorkingDir, string branch, DateTime time, string gitPath)
 		{
 			var outputLocation = string.Format("\"{0}_{1}\"", branch, time.ToFileTimeUtc());
-			int returnCode = VariousFunctions.RunProgramSilently("C:\\Program Files (x86)\\Git\\cmd\\git.exe",
-				"clone -b " + branch + " https://github.com/XboxChaos/Assembly.git " + outputLocation, asmWorkingDir);
+			string output;
+			int returnCode = VariousFunctions.RunProgramSilently(gitPath,
+				"clone -b " + branch + " https://github.com/XboxChaos/Assembly.git " + outputLocation, asmWorkingDir, out output);
 
 			if (returnCode != 0)
 				return null;
@@ -192,7 +227,6 @@ namespace XboxChaosApi.Helpers
 		private const string AsmDirVar = "ASM_DIR";
 		private const string AsmMSBuildVar = "ASM_MS_BUILD";
 		private const string AsmGitVar = "ASM_GIT";
-		private const string AsmStorageVar = "ASM_STOR";
 
 		private static readonly string[] Localizations =
 		{
