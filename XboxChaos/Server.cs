@@ -28,7 +28,7 @@ namespace XboxChaos
 			request.Accept = JsonMimeType;
 			try
 			{
-				using (var response = await request.GetResponseAsync())
+				using (var response = await request.GetResponseAsync().ConfigureAwait(false))
 				{
 					using (var stream = response.GetResponseStream())
 					{
