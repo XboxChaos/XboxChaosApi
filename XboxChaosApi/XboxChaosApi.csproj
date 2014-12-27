@@ -104,7 +104,6 @@
       <DependentUpon>201412262113473_added changelogs.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Api\ApplicationResponse.cs" />
     <Compile Include="Models\Api\GitResponse.cs" />
     <Compile Include="Models\Local\VersionInfo.cs" />
     <Compile Include="Models\Sql\ApplicationBranch.cs" />
@@ -119,7 +118,6 @@
     <Compile Include="Helpers\GithubHashUtility.cs" />
     <Compile Include="Helpers\VariousFunctions.cs" />
     <Compile Include="Models\Github\GithubPush.cs" />
-    <Compile Include="Models\Api\Response.cs" />
     <Compile Include="Models\Sql\Application.cs" />
     <Compile Include="Models\Sql\Audit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -148,6 +146,12 @@
     <EmbeddedResource Include="Migrations\201412262113473_added changelogs.resx">
       <DependentUpon>201412262113473_added changelogs.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XboxChaos\XboxChaos.csproj">
+      <Project>{f32ca26c-f8dd-4160-858b-9b27f39b095b}</Project>
+      <Name>XboxChaos</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

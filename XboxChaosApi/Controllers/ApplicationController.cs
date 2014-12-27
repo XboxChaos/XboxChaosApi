@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using XboxChaos.Models;
 using XboxChaosApi.Extenders;
 using XboxChaosApi.Models.Api;
 using XboxChaosApi.Models.Sql;

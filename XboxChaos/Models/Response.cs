@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.Serialization;
 
-namespace XboxChaosApi.Models.Api
+namespace XboxChaos.Models
 {
 	[DataContract]
-	[KnownType(typeof(ApplicationResponse))]
-	[KnownType(typeof(GitResponse))]
-	[KnownType(typeof(Error))]
 	public class Response<T>
 		where T : Result
 	{
@@ -30,16 +27,19 @@ namespace XboxChaosApi.Models.Api
 	public enum ErrorCode
 	{
 		[Description("invalid_push_security")]
-		InsecurePush = 0x00,
+		InsecurePush,
 
 		[Description("unsupported_branch")]
-		UnsupportedBranch = 0x15,
+		UnsupportedBranch,
 
 		[Description("unsupported_application")]
-		UnsupportedApplication = 0x30,
+		UnsupportedApplication,
 
 		[Description("unknown_application")]
-		UnknownApplication = 0x45
+		UnknownApplication,
+
+		[Description("client_error")]
+		ClientError
 	}
 
 	[DataContract]

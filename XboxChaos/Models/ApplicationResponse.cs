@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace XboxChaosApi.Models.Api
+namespace XboxChaos.Models
 {
 	[DataContract]
 	public class ApplicationResponse

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Http;
+using XboxChaos.Models;
 using XboxChaosApi.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
