@@ -38,8 +38,8 @@ namespace XboxChaosApi.Helpers
 					!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager") ||
 					!AddVersionInfo(pullDirectory, time, branch) ||
 					!CleanupLocalizations(pullDirectory) ||
-					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", false) ||
-					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", true))
+					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", "Assembly", false) ||
+					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", "AssemblyUpdateManager", true))
 					return false;
 
 				var changelog = ParseChangelog(pullDirectory, payload.Compare, gitPath);
@@ -149,11 +149,19 @@ namespace XboxChaosApi.Helpers
 			return true;
 		}
 
-		private static bool BuildPackage(string pullDirectory, DateTime time, string branch, string asmStorageDir,
-			string programName, bool isUpdater)
+		private static bool BuildPackage(string pullDirectory, DateTime time, string branch, string asmStorageDir, string solutionName, string projectName, bool isUpdater)
 		{
-			var releaseDir = Path.Combine(pullDirectory, "src", programName, "bin", "x86", "Release");
-			File.Delete(Path.Combine(releaseDir, programName + ".exe.config"));
+			var releaseDir = Path.Combine(pullDirectory, "src", projectName, "bin", "x86", "Release");
+
+            if (File.Exists(Path.Combine(releaseDir, projectName + ".exe.config")))
+			    File.Delete(Path.Combine(releaseDir, projectName + ".exe.config"));
+
+            if (File.Exists(Path.Combine(releaseDir, projectName + ".pdb")))
+                File.Delete(Path.Combine(releaseDir, projectName + ".pdb"));
+
+            if (File.Exists(Path.Combine(releaseDir, projectName + ".exe")) && isUpdater)
+                File.Move(Path.Combine(releaseDir, projectName + ".exe"), Path.Combine(releaseDir, "update.exe"));
+
 			var buildType = !isUpdater ? "builds" : "updaters";
 
 			try
@@ -161,7 +169,7 @@ namespace XboxChaosApi.Helpers
 				using (ZipFile zip = new ZipFile())
 				{
 					zip.AddDirectory(releaseDir);
-					zip.Save(Path.Combine(asmStorageDir, programName, "tree", branch, buildType, time.ToFileTimeUtc() + ".zip"));
+					zip.Save(Path.Combine(asmStorageDir, solutionName, "tree", branch, buildType, time.ToFileTimeUtc() + ".zip"));
 				}
 				return true;
 			}
