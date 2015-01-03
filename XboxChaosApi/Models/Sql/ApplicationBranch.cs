@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace XboxChaosApi.Models.Sql
 {
@@ -42,6 +43,24 @@ namespace XboxChaosApi.Models.Sql
 
 		public string InternalVersion { get; set; }
 
-		public string Changelog { get; set; }
+		public virtual ICollection<Changelog> Changelogs { get; set; }
+	}
+
+	public class Changelog
+		: Audit
+	{
+		[Key]
+		public int Id { get; set; }
+
+		public virtual ApplicationBranch Branch { get; set; }
+
+		[Required]
+		public string FriendlyVersion { get; set; }
+
+		[Required]
+		public string InternalVersion { get; set; }
+
+		[Required]
+		public string Changes { get; set; }
 	}
 }

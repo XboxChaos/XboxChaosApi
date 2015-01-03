@@ -103,6 +103,14 @@
     <Compile Include="Migrations\201412262113473_added changelogs.Designer.cs">
       <DependentUpon>201412262113473_added changelogs.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201501030407382_addedchangelogtable.cs" />
+    <Compile Include="Migrations\201501030407382_addedchangelogtable.Designer.cs">
+      <DependentUpon>201501030407382_addedchangelogtable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201501030423127_AddedChangeLink.cs" />
+    <Compile Include="Migrations\201501030423127_AddedChangeLink.Designer.cs">
+      <DependentUpon>201501030423127_AddedChangeLink.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Api\GitResponse.cs" />
     <Compile Include="Models\Local\VersionInfo.cs" />
@@ -145,6 +153,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201412262113473_added changelogs.resx">
       <DependentUpon>201412262113473_added changelogs.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501030407382_addedchangelogtable.resx">
+      <DependentUpon>201501030407382_addedchangelogtable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201501030423127_AddedChangeLink.resx">
+      <DependentUpon>201501030423127_AddedChangeLink.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

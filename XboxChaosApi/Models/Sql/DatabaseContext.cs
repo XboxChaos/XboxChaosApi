@@ -49,5 +49,7 @@ namespace XboxChaosApi.Models.Sql
 		public DbSet<Application> Applications { get; set; }
 
 		public DbSet<ApplicationBranch> ApplicationBranches { get; set; }
+
+		public DbSet<Changelog> Changelogs { get; set; }
 	}
 }

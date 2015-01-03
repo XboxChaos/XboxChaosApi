@@ -45,8 +45,13 @@ namespace XboxChaosApi.Controllers
 							UpdaterDownload = b.UpdaterDownload,
 							FriendlyVersion = b.FriendlyVersion,
 							InternalVersion = b.InternalVersion,
-							Changelog = b.Changelog
-						})
+							Changes = b.Changelogs.Select(c => new ChangelogResponse
+							{
+								Change = c.Changes,
+								FriendlyVersion = c.FriendlyVersion,
+								InternalVersion = c.InternalVersion
+							}).ToList()
+						}).ToList()
 					},
 					Error = null
 				});

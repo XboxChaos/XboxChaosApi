@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace XboxChaosApi.Migrations
 {
 	using System.Data.Entity.Migrations;
@@ -39,7 +41,7 @@ namespace XboxChaosApi.Migrations
 					UpdaterDownload = null,
 					FriendlyVersion = null,
 					InternalVersion = null,
-					Changelog = null
+					Changelogs = new List<Changelog>()
 				},
 				new ApplicationBranch
 				{
@@ -51,7 +53,7 @@ namespace XboxChaosApi.Migrations
 					UpdaterDownload = null,
 					FriendlyVersion = null,
 					InternalVersion = null,
-					Changelog = null
+					Changelogs = new List<Changelog>()
 				},
 				new ApplicationBranch
 				{
@@ -63,7 +65,7 @@ namespace XboxChaosApi.Migrations
 					UpdaterDownload = null,
 					FriendlyVersion = null,
 					InternalVersion = null,
-					Changelog = null
+					Changelogs = new List<Changelog>()
 				}
 			);
 			context.SaveChanges();

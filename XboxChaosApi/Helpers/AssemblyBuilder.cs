@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -54,24 +55,35 @@ namespace XboxChaosApi.Helpers
 						if (applicationBranch != null && applicationBranch.UpdatedAt < time)
 						{
 							var application = applicationBranch.Application;
+							var friendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch);
+							var internalVersion = GetInternalVersion(pullDirectory);
 
-							db.ApplicationBranches.AddOrUpdate(
-								b => b.RepoTree,
-								new ApplicationBranch
-								{
-									Application = application,
-									Name = branch,
-									Ref = buildref,
-									RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch),
-									BuildDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
-										string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc()),
-									UpdaterDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip", 
-										string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc()),
-									FriendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch),
-									InternalVersion = GetInternalVersion(pullDirectory),
-									Changelog = changelog
-								}
-							);
+							var appBranch = new ApplicationBranch
+							{
+								Application = application,
+								Name = branch,
+								Ref = buildref,
+								RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch),
+								BuildDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
+									string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc()),
+								UpdaterDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
+									string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc()),
+								FriendlyVersion = friendlyVersion,
+								InternalVersion = internalVersion,
+
+							};
+
+							db.ApplicationBranches.AddOrUpdate(b => b.RepoTree, appBranch);
+							db.SaveChanges();
+
+							var changes = new Changelog()
+							{
+								Changes = changelog,
+								FriendlyVersion = friendlyVersion,
+								InternalVersion = internalVersion,
+								Branch = db.ApplicationBranches.FirstOrDefault(a => a.RepoTree == appBranch.RepoTree)
+							};
+							db.Changelogs.AddOrUpdate(changes);
 							db.SaveChanges();
 						}
 						else

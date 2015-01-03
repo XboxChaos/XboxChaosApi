@@ -20,7 +20,7 @@ namespace XboxChaos.Models
 		public string RepoName { get; set; }
 
 		[DataMember(Name = "application_branches")]
-		public IEnumerable<ApplicationBranchResponse> ApplicationBranches { get; set; }
+		public List<ApplicationBranchResponse> ApplicationBranches { get; set; }
 	}
 
 	[DataContract]
@@ -48,6 +48,18 @@ namespace XboxChaos.Models
 		public string InternalVersion { get; set; }
 
 		[DataMember(Name = "changelog")]
-		public string Changelog { get; set; }
+		public List<ChangelogResponse> Changes { get; set; }
+	}
+
+	public class ChangelogResponse
+	{
+		[DataMember(Name = "friendly_version")]
+		public string FriendlyVersion { get; set; }
+
+		[DataMember(Name = "internal_version")]
+		public string InternalVersion { get; set; }
+
+		[DataMember(Name = "changes")]
+		public string Change { get; set; }
 	}
 }
