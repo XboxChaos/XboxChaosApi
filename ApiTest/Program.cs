@@ -44,10 +44,14 @@ namespace ApiTest
 			Console.WriteLine("- Friendly Version: " + response.FriendlyVersion);
 			Console.WriteLine("- Internal Version: " + response.InternalVersion);
 			Console.WriteLine("- Changelog:");
-			if (response.Changelog != null)
+			if (response.Changes != null)
 			{
-				foreach (var line in response.Changelog.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-					Console.WriteLine("  " + line);
+				foreach (var change in response.Changes)
+				{
+					Console.WriteLine("- " + change.FriendlyVersion + " (" + change.InternalVersion + ")");
+					foreach (var line in change.Change.Split(new char[] {'\n'}, StringSplitOptions.RemoveEmptyEntries))
+						Console.WriteLine("    " + line);
+				}
 			}
 			Console.WriteLine();
 		}
