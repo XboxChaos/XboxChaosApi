@@ -15,7 +15,7 @@ namespace XboxChaos
 		/// <summary>
 		/// The base URL to use when communicating with the server.
 		/// </summary>
-		private const string BaseUrl = "http://tj.ngrok.com/api/1";
+		private const string BaseUrl = "http://api.xboxchaos.com/1";
 
 		/// <summary>
 		/// The URL to use for requesting application info.

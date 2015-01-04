@@ -7,6 +7,11 @@ using Ionic.Zip;
 using Newtonsoft.Json;
 using XboxChaosApi.Models.Sql;
 using System.Data.Entity.Migrations;
+using System.Runtime.InteropServices;
+using System.Web.UI;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using XboxChaosApi.Models.Github;
 using XboxChaosApi.Models.Local;
 
@@ -58,16 +63,26 @@ namespace XboxChaosApi.Helpers
 							var friendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch);
 							var internalVersion = GetInternalVersion(pullDirectory);
 
+#if AZURE
+							var buildLink = String.Format("https://xbcapi.blob.core.windows.net//assembly//{0}//builds//{1}.zip", branch,
+								time.ToFileTimeUtc());
+							var updaterLink = String.Format("https://xbcapi.blob.core.windows.net//assembly//{0}//updaters//{1}.zip", branch,
+								time.ToFileTimeUtc());
+#else
+							var buildLink = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
+								string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc());
+							var updaterLink = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
+								string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc());
+#endif
+
 							var appBranch = new ApplicationBranch
 							{
 								Application = application,
 								Name = branch,
 								Ref = buildref,
 								RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch),
-								BuildDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
-									string.Format("{0}/tree/{1}/builds", "Assembly", branch), time.ToFileTimeUtc()),
-								UpdaterDownload = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
-									string.Format("{0}/tree/{1}/updaters", "Assembly", branch), time.ToFileTimeUtc()),
+								BuildDownload = buildLink,
+								UpdaterDownload = updaterLink,
 								FriendlyVersion = friendlyVersion,
 								InternalVersion = internalVersion,
 
@@ -96,11 +111,13 @@ namespace XboxChaosApi.Helpers
 				return true;
 			}
 			finally
-			{
-				CleanupExtraZips(asmStorageDir);
+			{	
+				CleanupExtraZips(asmStorageDir, branch, "Assembly");
 				DirectoryUtility.DeleteDirectory(pullDirectory, true);
 			}
 		}
+
+
 
 		private static string ParseChangelog(string pullDirectory, string compare, string gitPath)
 		{
@@ -128,18 +145,41 @@ namespace XboxChaosApi.Helpers
 			return result;
 		}
 
-		private static void CleanupExtraZips(string asmStorageDir)
+		private static void CleanupExtraZips(string asmStorageDir, string branch, string solutionName)
 		{
+#if AZURE
+			var azureConnectionStr = Environment.GetEnvironmentVariable(AsmAzureVar);
+			var storageAccount = CloudStorageAccount.Parse(azureConnectionStr);
+
+			var blobClient = storageAccount.CreateCloudBlobClient();
+			var container = blobClient.GetContainerReference(solutionName.ToLower());
+
 			foreach (var dir in BuildDirectories)
 			{
-				var releaseDir = Path.Combine(asmStorageDir, "Assembly\\tree", dir);
+				var cloudDir = container.GetDirectoryReference(String.Format("{0}/{1}", branch, dir));
+				var blobList = cloudDir.ListBlobs();
+
+				var blockBlobs = blobList.OfType<CloudBlockBlob>().OrderByDescending(f => f.Properties.LastModified).ToList();
+				foreach (var blob in blockBlobs.Skip(5))
+					blob.Delete();
+			}
+#endif
+			foreach (var dir in BuildDirectories)
+			{
+				var releaseDir = Path.Combine(asmStorageDir, "Assembly\\tree",  branch, dir);
 
 				var directory = new DirectoryInfo(releaseDir);
 				var myFiles = directory.GetFiles().OrderByDescending(file => file.LastWriteTime);
 
+#if AZURE
+				foreach (var file in myFiles)
+					file.Delete();
+#else
 				foreach (var file in myFiles.Skip(5))
 					file.Delete();
+#endif
 			}
+
 		}
 
 		private static string GetInternalVersion(string pullDirectory)
@@ -180,8 +220,26 @@ namespace XboxChaosApi.Helpers
 			{
 				using (ZipFile zip = new ZipFile())
 				{
+					var fileName = time.ToFileTimeUtc() + ".zip";
+					var zipPath = Path.Combine(asmStorageDir, solutionName, "tree", branch, buildType, fileName);
 					zip.AddDirectory(releaseDir);
-					zip.Save(Path.Combine(asmStorageDir, solutionName, "tree", branch, buildType, time.ToFileTimeUtc() + ".zip"));
+					zip.Save(zipPath);
+
+#if AZURE
+					var azureConnectionStr = Environment.GetEnvironmentVariable(AsmAzureVar);
+					var storageAccount = CloudStorageAccount.Parse(azureConnectionStr);
+
+					var blobClient = storageAccount.CreateCloudBlobClient();
+					var container = blobClient.GetContainerReference(solutionName.ToLower());
+					container.CreateIfNotExists();
+					container.SetPermissions(new BlobContainerPermissions
+					{
+						PublicAccess = BlobContainerPublicAccessType.Blob
+					});
+					var blob = container.GetBlockBlobReference(String.Format("{0}/{1}/{2}", branch, buildType, fileName).ToLowerInvariant());
+					
+					blob.UploadFromFile(zipPath, FileMode.Open);
+#endif
 				}
 				return true;
 			}
@@ -247,6 +305,7 @@ namespace XboxChaosApi.Helpers
 		private const string AsmDirVar = "ASM_DIR";
 		private const string AsmMSBuildVar = "ASM_MS_BUILD";
 		private const string AsmGitVar = "ASM_GIT";
+		private const string AsmAzureVar = "ASM_AZURE_STORE";
 
 		private static readonly string[] Localizations =
 		{
@@ -268,12 +327,8 @@ namespace XboxChaosApi.Helpers
 
 		private static readonly string[] BuildDirectories =
 		{
-			Path.Combine("master", "builds"),
-			Path.Combine("master", "updaters"),
-			Path.Combine("new_updater", "builds"),
-			Path.Combine("new_updater", "updaters"),
-			Path.Combine("dev", "builds"),
-			Path.Combine("dev", "updaters"),
+			"builds",
+			"updaters"
 		};
 
 	}

@@ -14,7 +14,7 @@ namespace XboxChaosApi
 
 			config.Routes.MapHttpRoute(
 				name: "DefaultApi",
-				routeTemplate: "api/{version}/{controller}/{id}",
+				routeTemplate: "{version}/{controller}/{id}",
 				defaults: new { version = "1", id = RouteParameter.Optional }
 			);
 
