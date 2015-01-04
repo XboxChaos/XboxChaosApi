@@ -37,10 +37,10 @@ namespace XboxChaosApi.Migrations
 					Ref = "refs/heads/master",
 					RepoTree = "Assembly/tree/master",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
-					BuildDownload = null,
-					UpdaterDownload = null,
-					FriendlyVersion = null,
-					InternalVersion = null,
+					//BuildDownload = null,
+					//UpdaterDownload = null,
+					//FriendlyVersion = null,
+					//InternalVersion = null,
 					Changelogs = new List<Changelog>()
 				},
 				new ApplicationBranch
@@ -49,10 +49,10 @@ namespace XboxChaosApi.Migrations
 					Ref = "refs/heads/dev",
 					RepoTree = "Assembly/tree/dev",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
-					BuildDownload = null,
-					UpdaterDownload = null,
-					FriendlyVersion = null,
-					InternalVersion = null,
+					//BuildDownload = null,
+					//UpdaterDownload = null,
+					//FriendlyVersion = null,
+					//InternalVersion = null,
 					Changelogs = new List<Changelog>()
 				},
 				new ApplicationBranch
@@ -61,10 +61,10 @@ namespace XboxChaosApi.Migrations
 					Ref = "refs/heads/new_updater",
 					RepoTree = "Assembly/tree/new_updater",
 					Application = context.Applications.FirstOrDefault(a => a.RepoName == "Assembly"),
-					BuildDownload = null,
-					UpdaterDownload = null,
-					FriendlyVersion = null,
-					InternalVersion = null,
+					//BuildDownload = null,
+					//UpdaterDownload = null,
+					//FriendlyVersion = null,
+					//InternalVersion = null,
 					Changelogs = new List<Changelog>()
 				}
 			);

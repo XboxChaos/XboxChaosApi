@@ -40,8 +40,8 @@ namespace XboxChaosApi.Helpers
 			try
 			{
 				if (!CopyDependencies(asmWorkingDir, pullDirectory) || 
-					!CompileProgram(msbuildDir, pullDirectory, "Assembly") ||
-					!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager") ||
+					!CompileProgram(msbuildDir, pullDirectory, "Assembly", asmWorkingDir) ||
+					!CompileProgram(msbuildDir, pullDirectory, "AssemblyUpdateManager", asmWorkingDir) ||
 					!AddVersionInfo(pullDirectory, time, branch) ||
 					!CleanupLocalizations(pullDirectory) ||
 					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", "Assembly", false) ||
@@ -64,9 +64,9 @@ namespace XboxChaosApi.Helpers
 							var internalVersion = GetInternalVersion(pullDirectory);
 
 #if AZURE
-							var buildLink = String.Format("https://xbcapi.blob.core.windows.net//assembly//{0}//builds//{1}.zip", branch,
+							var buildLink = String.Format("https://xbcapi.blob.core.windows.net/assembly/{0}/builds/{1}.zip", branch,
 								time.ToFileTimeUtc());
-							var updaterLink = String.Format("https://xbcapi.blob.core.windows.net//assembly//{0}//updaters//{1}.zip", branch,
+							var updaterLink = String.Format("https://xbcapi.blob.core.windows.net/assembly/{0}/updaters/{1}.zip", branch,
 								time.ToFileTimeUtc());
 #else
 							var buildLink = String.Format("http://tj.ngrok.com/downloads/{0}/{1}.zip",
@@ -262,15 +262,18 @@ namespace XboxChaosApi.Helpers
 			return true;
 		}
 
-		private static bool CompileProgram(string msbuildDir, string pullDirectory, string target)
+		private static bool CompileProgram(string msbuildDir, string pullDirectory, string target, string asmWorkingDir)
 		{
 			var arguments = string.Format("/t:{0} /p:Configuration=Release Assembly.sln", target);
 			string output;
+
 			int returnCode = VariousFunctions.RunProgramSilently(msbuildDir, arguments,
 				Path.Combine(pullDirectory, "src"), out output);
 
 			if (returnCode != 0)
+			{
 				return false;
+			}
 			return true;
 		}
 
