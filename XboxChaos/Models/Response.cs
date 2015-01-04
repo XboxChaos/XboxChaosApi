@@ -1,9 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System.CodeDom;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace XboxChaos.Models
 {
 	[DataContract]
+	[KnownType(typeof(ApplicationResponse))]
+	[KnownType(typeof(Error))]
 	public class Response<T>
 		where T : Result
 	{
