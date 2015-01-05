@@ -1,17 +1,16 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using XboxChaos.Models;
 
-namespace XboxChaos
+namespace XboxChaos.Net
 {
 	/// <summary>
 	/// Communicates with Xbox Chaos API endpoints.
 	/// </summary>
-	static class Server
+	static class ApiRequest
 	{
 		private const string JsonMimeType = "application/json";
 
@@ -21,7 +20,7 @@ namespace XboxChaos
 		/// <typeparam name="TResultType">The type of the result object that should be deserialized and returned.</typeparam>
 		/// <param name="url">The URL to get.</param>
 		/// <returns>The server's response.</returns>
-		public static async Task<Response<TResultType>> SendRequestAsync<TResultType>(string url)
+		public static async Task<Response<TResultType>> SendAsync<TResultType>(string url)
 			where TResultType : Result
 		{
 			var request = (HttpWebRequest)WebRequest.Create(url);

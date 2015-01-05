@@ -43,13 +43,11 @@ namespace XboxChaosApi.Controllers
 							RepoTree = b.RepoTree,
 							BuildDownload = b.BuildDownload,
 							UpdaterDownload = b.UpdaterDownload,
-							FriendlyVersion = b.FriendlyVersion,
-							InternalVersion = b.InternalVersion,
+							Version = (b.FriendlyVersion != null && b.InternalVersion != null) ? ApplicationVersionPair.TryParse(b.FriendlyVersion, b.InternalVersion) : null,
 							Changes = b.Changelogs.Select(c => new ChangelogResponse
 							{
 								Change = c.Changes,
-								FriendlyVersion = c.FriendlyVersion,
-								InternalVersion = c.InternalVersion
+								Version = (c.FriendlyVersion != null && c.InternalVersion != null) ? ApplicationVersionPair.TryParse(c.FriendlyVersion, c.InternalVersion) : null
 							}).ToList()
 						}).ToList()
 					},

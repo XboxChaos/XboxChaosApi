@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using XboxChaos;
 using XboxChaos.Models;
 
@@ -41,14 +43,17 @@ namespace ApiTest
 			Console.WriteLine("- Tree: " + response.RepoTree);
 			Console.WriteLine("- Build URL: " + response.BuildDownload);
 			Console.WriteLine("- Updater URL: " + response.UpdaterDownload);
-			Console.WriteLine("- Friendly Version: " + response.FriendlyVersion);
-			Console.WriteLine("- Internal Version: " + response.InternalVersion);
+			if (response.Version != null)
+			{
+				Console.WriteLine("- Friendly Version: " + response.Version.Friendly);
+				Console.WriteLine("- Internal Version: " + response.Version.Internal);
+			}
 			Console.WriteLine("- Changelog:");
 			if (response.Changes != null)
 			{
 				foreach (var change in response.Changes)
 				{
-					Console.WriteLine("- " + change.FriendlyVersion + " (" + change.InternalVersion + ")");
+					Console.WriteLine("- " + change.Version.Friendly + " (" + change.Version.Internal + ")");
 					foreach (var line in change.Change.Split(new char[] {'\n'}, StringSplitOptions.RemoveEmptyEntries))
 						Console.WriteLine("    " + line);
 				}

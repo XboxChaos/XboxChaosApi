@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace XboxChaos.Models
@@ -41,23 +42,18 @@ namespace XboxChaos.Models
 		[DataMember(Name = "updater_link")]
 		public string UpdaterDownload { get; set; }
 
-		[DataMember(Name = "friendly_version")]
-		public string FriendlyVersion { get; set; }
-
-		[DataMember(Name = "internal_version")]
-		public string InternalVersion { get; set; }
+		[DataMember(Name = "version")]
+		public ApplicationVersionPair Version { get; set; }
 
 		[DataMember(Name = "changelog")]
 		public List<ChangelogResponse> Changes { get; set; }
 	}
 
+	[DataContract]
 	public class ChangelogResponse
 	{
-		[DataMember(Name = "friendly_version")]
-		public string FriendlyVersion { get; set; }
-
-		[DataMember(Name = "internal_version")]
-		public string InternalVersion { get; set; }
+		[DataMember(Name = "version")]
+		public ApplicationVersionPair Version { get; set; }
 
 		[DataMember(Name = "changes")]
 		public string Change { get; set; }

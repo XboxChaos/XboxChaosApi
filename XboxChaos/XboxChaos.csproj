@@ -45,9 +45,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\ApplicationResponse.cs" />
+    <Compile Include="Models\ApplicationVersionPair.cs" />
     <Compile Include="Models\Response.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="Api\ApiRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\BranchTimeVersion.cs" />
     <Compile Include="XboxChaosApi.cs" />
   </ItemGroup>
   <ItemGroup>

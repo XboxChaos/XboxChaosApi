@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XboxChaos.Models;
+using XboxChaos.Net;
 
 namespace XboxChaos
 {
@@ -30,7 +31,7 @@ namespace XboxChaos
 		public static async Task<Response<ApplicationResponse>> GetApplicationInfoAsync(string applicationName)
 		{
 			var url = string.Format(ApplicationUrl, applicationName);
-			return await Server.SendRequestAsync<ApplicationResponse>(url).ConfigureAwait(false);
+			return await ApiRequest.SendAsync<ApplicationResponse>(url).ConfigureAwait(false);
 		}
 	}
 }
