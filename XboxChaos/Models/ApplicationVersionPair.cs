@@ -4,6 +4,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace XboxChaos.Models
 {
@@ -26,6 +28,11 @@ namespace XboxChaos.Models
 				throw new ArgumentNullException("internal");
 			Friendly = friendly;
 			Internal = @internal;
+		}
+
+		[JsonConstructor]
+		private ApplicationVersionPair()
+		{
 		}
 
 		/// <summary>
