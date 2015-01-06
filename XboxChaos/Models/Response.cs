@@ -1,5 +1,4 @@
-﻿using System.CodeDom;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace XboxChaos.Models

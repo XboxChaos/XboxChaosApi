@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,9 +6,6 @@ using Ionic.Zip;
 using Newtonsoft.Json;
 using XboxChaosApi.Models.Sql;
 using System.Data.Entity.Migrations;
-using System.Runtime.InteropServices;
-using System.Web.UI;
-using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using XboxChaosApi.Models.Github;
@@ -56,12 +52,14 @@ namespace XboxChaosApi.Helpers
 				{
 					using (var db = new DatabaseContext())
 					{
+						var friendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch);
+						var internalVersion = GetInternalVersion(pullDirectory);
+						var repoTree = String.Format("{0}/tree/{1}", "Assembly", branch);
 						var applicationBranch = db.ApplicationBranches.FirstOrDefault(b => b.Ref == buildref && b.Application.RepoName == "Assembly");
-						if (applicationBranch != null && applicationBranch.UpdatedAt < time)
+
+						if (applicationBranch != null && new Version(applicationBranch.InternalVersion).CompareTo(new Version(internalVersion)) < 0)
 						{
 							var application = applicationBranch.Application;
-							var friendlyVersion = String.Format(time.ToString("yyyy.MM.dd.HH.mm.ss") + "-{0}", branch);
-							var internalVersion = GetInternalVersion(pullDirectory);
 
 #if AZURE
 							var buildLink = String.Format("https://xbcapi.blob.core.windows.net/assembly/{0}/builds/{1}.zip", branch,
@@ -80,7 +78,7 @@ namespace XboxChaosApi.Helpers
 								Application = application,
 								Name = branch,
 								Ref = buildref,
-								RepoTree = string.Format("{0}/tree/{1}", "Assembly", branch),
+								RepoTree = repoTree,
 								BuildDownload = buildLink,
 								UpdaterDownload = updaterLink,
 								FriendlyVersion = friendlyVersion,
@@ -90,21 +88,26 @@ namespace XboxChaosApi.Helpers
 
 							db.ApplicationBranches.AddOrUpdate(b => b.RepoTree, appBranch);
 							db.SaveChanges();
-
-							var changes = new Changelog()
-							{
-								Changes = changelog,
-								FriendlyVersion = friendlyVersion,
-								InternalVersion = internalVersion,
-								Branch = db.ApplicationBranches.FirstOrDefault(a => a.RepoTree == appBranch.RepoTree)
-							};
-							db.Changelogs.AddOrUpdate(changes);
-							db.SaveChanges();
 						}
 						else
 						{
 							File.Delete(Path.Combine(asmStorageDir, "Assembly", "tree", branch, "builds", time.ToFileTimeUtc() + ".zip"));
 							File.Delete(Path.Combine(asmStorageDir, "Assembly", "tree", branch, "updaters", time.ToFileTimeUtc() + ".zip"));
+						}
+
+						var changelogOwner =
+							db.ApplicationBranches.FirstOrDefault(a => a.RepoTree == repoTree && a.Application.RepoName == "Assembly");
+						if (changelogOwner != null)
+						{
+							var changes = new Changelog()
+							{
+								Changes = changelog,
+								FriendlyVersion = friendlyVersion,
+								InternalVersion = internalVersion,
+								Branch = changelogOwner
+							};
+							db.Changelogs.AddOrUpdate(changes);
+							db.SaveChanges();
 						}
 					}
 				}

@@ -13,7 +13,7 @@ namespace XboxChaosApi.Migrations
 			AutomaticMigrationsEnabled = false;
 		}
 
-		protected override void Seed(DatabaseContext context)
+		/*protected override void Seed(DatabaseContext context)
 		{
 			// Seed Applications
 			context.Applications.AddOrUpdate(
@@ -29,7 +29,7 @@ namespace XboxChaosApi.Migrations
 			context.SaveChanges();
 
 			// Seed branches
-			context.ApplicationBranches.AddOrUpdate(
+			/*context.ApplicationBranches.AddOrUpdate(
 				b => b.RepoTree,
 				new ApplicationBranch
 				{
@@ -69,6 +69,6 @@ namespace XboxChaosApi.Migrations
 				}
 			);
 			context.SaveChanges();
-		}
+		}*/
 	}
 }
