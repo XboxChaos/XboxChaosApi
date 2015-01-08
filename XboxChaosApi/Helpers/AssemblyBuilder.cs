@@ -44,7 +44,7 @@ namespace XboxChaosApi.Helpers
 					!BuildPackage(pullDirectory, time, branch, asmStorageDir, "Assembly", "AssemblyUpdateManager", true))
 					return false;
 
-				var changelog = ParseChangelog(pullDirectory, payload.Compare, gitPath);
+				var changelog = payload.Created ? "Initial Commit" : ParseChangelog(pullDirectory, payload.Compare, gitPath);
 				if (changelog == null)
 					return false;
 
@@ -57,7 +57,7 @@ namespace XboxChaosApi.Helpers
 						var repoTree = String.Format("{0}/tree/{1}", "Assembly", branch);
 						var applicationBranch = db.ApplicationBranches.FirstOrDefault(b => b.Ref == buildref && b.Application.RepoName == "Assembly");
 
-						if (applicationBranch != null && new Version(applicationBranch.InternalVersion).CompareTo(new Version(internalVersion)) < 0)
+						if (applicationBranch != null && (applicationBranch.InternalVersion == null || new Version(applicationBranch.InternalVersion).CompareTo(new Version(internalVersion)) < 0))
 						{
 							var application = applicationBranch.Application;
 
