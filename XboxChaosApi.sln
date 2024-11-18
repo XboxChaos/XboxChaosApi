@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxChaosApi", "XboxChaosApi\XboxChaosApi.csproj", "{0B00A7B4-3B05-4AA7-8FDC-3357DE6CC58D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxChaos", "XboxChaos\XboxChaos.csproj", "{F32CA26C-F8DD-4160-858B-9B27F39B095B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTest", "ApiTest\ApiTest.csproj", "{9AD535DA-0171-4B7F-87A4-1227CAC95F9B}"
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0B00A7B4-3B05-4AA7-8FDC-3357DE6CC58D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B00A7B4-3B05-4AA7-8FDC-3357DE6CC58D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B00A7B4-3B05-4AA7-8FDC-3357DE6CC58D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B00A7B4-3B05-4AA7-8FDC-3357DE6CC58D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F32CA26C-F8DD-4160-858B-9B27F39B095B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F32CA26C-F8DD-4160-858B-9B27F39B095B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F32CA26C-F8DD-4160-858B-9B27F39B095B}.Release|Any CPU.ActiveCfg = Release|Any CPU
